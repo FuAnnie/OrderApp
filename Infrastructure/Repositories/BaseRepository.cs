@@ -13,10 +13,11 @@ public class BaseRepository<T> : IRepository<T> where T : class
         this.orderDbContext = orderDbContext;
     }
     
-    public async Task<int> InsertAsync(T entity)
+    public async Task<T> InsertAsync(T entity)
     {
         await orderDbContext.Set<T>().AddAsync(entity);
-        return await orderDbContext.SaveChangesAsync();
+        await orderDbContext.SaveChangesAsync();
+        return entity;
     }
 
     public async Task<int> UpdateAsync(T entity)

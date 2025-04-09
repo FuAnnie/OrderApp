@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using API.Mappings;
 using ApplicationCore.Contracts.Repositories;
 using ApplicationCore.Contracts.Services;
 using Infrastructure.Data;
@@ -20,6 +21,8 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+builder.Services.AddAutoMapper(typeof(OrderMapping));
 
 var app = builder.Build();
 

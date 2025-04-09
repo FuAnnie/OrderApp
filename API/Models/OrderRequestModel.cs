@@ -1,6 +1,6 @@
 namespace API.ViewModels;
 
-public class OrderViewModel
+public class OrderRequestModel
 {
     public DateTime OrderDate { get; set; }
     public int CustomerId { get; set; }

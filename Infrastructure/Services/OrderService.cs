@@ -18,7 +18,7 @@ public class OrderService : IOrderService
         return await orderRepository.GetAllAsync();
     }
 
-    public async Task<int> SaveNewOrderAsync(Order order)
+    public async Task<Order> SaveNewOrderAsync(Order order)
     {
         return await orderRepository.InsertAsync(order);
     }

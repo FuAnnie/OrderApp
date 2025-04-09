@@ -1,6 +1,7 @@
 using API.ViewModels;
 using ApplicationCore.Contracts.Services;
 using ApplicationCore.Entities;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -10,44 +11,36 @@ namespace API.Controllers;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService orderService;
+    private readonly IMapper mapper;
 
-    public OrderController(IOrderService orderService)
+    public OrderController(IOrderService orderService, IMapper mapper)
     {
         this.orderService = orderService;
+        this.mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllOrders()
     {
         var orders = await orderService.GetAllOrdersAsync();
-        return Ok(orders);
+        var result = mapper.Map<IEnumerable<OrderResponseModel>>(orders);
+        return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveNewOrder([FromBody] OrderViewModel orderViewModel)
+    public async Task<IActionResult> SaveNewOrder([FromBody] OrderRequestModel orderRequestModel)
     {
-        var order = new Order
-        {
-            OrderDate = orderViewModel.OrderDate,
-            CustomerId = orderViewModel.CustomerId,
-            CustomerName = orderViewModel.CustomerName,
-            PaymentMethodId = orderViewModel.PaymentMethodId,
-            PaymentName = orderViewModel.PaymentName,
-            ShippingAddress = orderViewModel.ShippingAddress,
-            ShippingMethod = orderViewModel.ShippingMethod,
-            BillAmount = orderViewModel.BillAmount,
-            OrderStatus = orderViewModel.OrderStatus
-        };
-        
-        await orderService.SaveNewOrderAsync(order);
-        return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
+        var order = await orderService.SaveNewOrderAsync(mapper.Map<Order>(orderRequestModel));
+        var response = mapper.Map<OrderResponseModel>(order);
+        return CreatedAtAction(nameof(GetOrderById), new { id = response.Id }, response);
     }
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrderByCustomerId(int id)
     {
         var orders = await orderService.GetOrderByCustomerIdAsync(id);
-        return Ok(orders);
+        var result = mapper.Map<IEnumerable<OrderResponseModel>>(orders);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
@@ -58,22 +51,10 @@ public class OrderController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderViewModel orderViewModel)
+    public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderRequestModel orderRequestModel)
     {
-        var order = new Order
-        {
-            Id = id,
-            OrderDate = orderViewModel.OrderDate,
-            CustomerId = orderViewModel.CustomerId,
-            CustomerName = orderViewModel.CustomerName,
-            PaymentMethodId = orderViewModel.PaymentMethodId,
-            PaymentName = orderViewModel.PaymentName,
-            ShippingAddress = orderViewModel.ShippingAddress,
-            ShippingMethod = orderViewModel.ShippingMethod,
-            BillAmount = orderViewModel.BillAmount,
-            OrderStatus = orderViewModel.OrderStatus
-        };
-        
+        var order = mapper.Map<Order>(orderRequestModel);
+        order.Id = id;
         await orderService.UpdateOrderAsync(order);
         return NoContent();
     }
@@ -82,6 +63,7 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetOrderById(int id)
     {
         var order = await orderService.GetOrderByIdAsync(id);
-        return Ok(order);
+        var result = mapper.Map<OrderResponseModel>(order);
+        return Ok(result);
     }
 }
